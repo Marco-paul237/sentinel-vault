@@ -1,16 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Shield, Clock, Eye, Download, User, MapPin, Calendar, Info, Lock, Search } from 'lucide-react';
 import RiskBadge from '../components/RiskBadge';
 
-const FileAccessDetail = ({ file, onBack }) => {
+const FileAccessDetail = ({ file, onBack, token, onAction }) => {
   const [activeTimelineTab, setActiveTimelineTab] = useState('all');
+  const [localLogs, setLocalLogs] = useState([]);
+  const [downloading, setDownloading] = useState(false);
 
-  const timelineEvents = [
-    { id: 1, user: 'John Doe', action: 'Viewed', time: '10:42 AM', date: 'Oct 24, 2023', location: 'New York, US', risk: 'low' },
-    { id: 2, user: 'Sarah Smith', action: 'Downloaded', time: '09:15 AM', date: 'Oct 24, 2023', location: 'London, UK', risk: 'medium' },
-    { id: 3, user: 'System Auto-Sweep', action: 'Encryption Verified', time: '02:00 AM', date: 'Oct 24, 2023', location: 'Cloud AWS-US-East', risk: 'low' },
-    { id: 4, user: 'Anomalous Entry', action: 'Access Blocked', time: '11:45 PM', date: 'Oct 23, 2023', location: 'Unknown', risk: 'high' },
-  ];
+  const API = 'http://localhost:4000/api';
+
+  useEffect(() => {
+    fetchFileLogs();
+  }, [file.id, token]);
+
+  const fetchFileLogs = async () => {
+    try {
+      const res = await fetch(`${API}/audit/logs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const allLogs = await res.json();
+        // Filter logs for this specific file
+        const filtered = allLogs.filter(log => log.file_id === file.id);
+        setLocalLogs(filtered);
+      }
+    } catch (err) {
+      console.error('Failed to fetch file logs', err);
+    }
+  };
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch(`${API}/files/download/${file.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.original_name;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        // Refresh both local and global logs
+        fetchFileLogs();
+        onAction?.(); 
+      }
+    } catch (err) {
+      console.error('Download failed', err);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const timelineEvents = localLogs.map(log => {
+    const dateStr = log.created_at ? log.created_at.replace(' ', 'T') : new Date().toISOString();
+    const date = new Date(dateStr);
+    return {
+      id: log.id,
+      user: log.user_email || 'SYSTEM',
+      action: log.event_type.replace(/_/g, ' '),
+      time: date.toLocaleTimeString(),
+      date: date.toLocaleDateString(),
+      location: log.ip_address || 'localhost',
+      risk: log.risk_score > 50 ? 'high' : log.risk_score > 20 ? 'medium' : 'low'
+    };
+  });
+
+  const filteredTimeline = activeTimelineTab === 'risk' 
+    ? timelineEvents.filter(e => e.risk === 'high')
+    : timelineEvents;
+
 
   return (
     <div className="flex flex-col h-full gap-6">
@@ -24,12 +86,12 @@ const FileAccessDetail = ({ file, onBack }) => {
         </button>
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            {file.name}
+            {file.original_name || file.name}
             <span className="text-xs px-2 py-0.5 rounded bg-midnight-blue border border-glass-border uppercase tracking-widest font-bold opacity-70">
               {file.classification}
             </span>
           </h2>
-          <div className="text-sm text-text-secondary mt-1">UUID: {Math.random().toString(36).substr(2, 16).toUpperCase()}</div>
+          <div className="text-sm text-text-secondary mt-1">UUID: {file.id}</div>
         </div>
       </div>
 
@@ -66,7 +128,7 @@ const FileAccessDetail = ({ file, onBack }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-[10px] text-text-secondary font-bold uppercase">Size</div>
-                <div className="text-sm">{file.size}</div>
+                <div className="text-sm">{file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${(file.size / 1024).toFixed(1)} KB`}</div>
               </div>
               <div>
                 <div className="text-[10px] text-text-secondary font-bold uppercase">MIME Type</div>
@@ -111,7 +173,13 @@ const FileAccessDetail = ({ file, onBack }) => {
               <button className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Zoom In"><Search size={18} /></button>
               <div className="w-px h-4 bg-glass-border"></div>
               <button className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Download Audit Trail"><Download size={18} /></button>
-              <button className="px-4 py-1.5 bg-sentinel-teal text-white rounded-full text-xs font-bold">SECURE DOWNLOAD</button>
+              <button 
+                onClick={handleDownload}
+                disabled={downloading}
+                className="px-4 py-1.5 bg-sentinel-teal text-white rounded-full text-xs font-bold disabled:opacity-50"
+              >
+                {downloading ? 'PROCESSING...' : 'SECURE DOWNLOAD'}
+              </button>
             </div>
           </div>
         </div>
@@ -136,10 +204,12 @@ const FileAccessDetail = ({ file, onBack }) => {
             </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-5 space-y-6">
-            {timelineEvents.map((event, idx) => (
-              <TimelineItem key={event.id} event={event} isLast={idx === timelineEvents.length - 1} />
-            ))}
+          <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
+            {filteredTimeline.length > 0 ? filteredTimeline.map((event, idx) => (
+              <TimelineItem key={event.id} event={event} isLast={idx === filteredTimeline.length - 1} />
+            )) : (
+              <div className="text-center text-xs text-text-secondary py-8">No events found for this file.</div>
+            )}
           </div>
         </div>
       </div>

@@ -1,125 +1,184 @@
-import React, { useState } from 'react';
-import { Shield, Plus, ArrowRight, Clock, MapPin, Network, Brain, Send, MoreHorizontal } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, Plus, Trash2, ToggleLeft, ToggleRight, AlertTriangle, CheckCircle } from 'lucide-react';
 
-const PolicyManagement = () => {
-  const [policies, setPolicies] = useState([
-    {
-      id: 1,
-      name: 'Ex-Regional Data Shield',
-      description: 'Block access to R&D folder from outside corporate network during non-business hours.',
-      status: 'active',
-      rules: [
-        { type: 'Folder', value: 'R&D', op: 'IF' },
-        { type: 'Network', value: 'Outside Corp', op: 'AND' },
-        { type: 'Time', value: 'Outside Business Hours', op: 'AND' }
-      ],
-      actions: ['Require 2FA', 'Apply Watermark', 'Notify Security']
+const API = 'http://localhost:4000/api';
+
+const PolicyManagement = ({ token }) => {
+  const [policies, setPolicies] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: '', description: '', condition_field: 'risk_score', condition_operator: '>', condition_value: '80', action: 'block_download', severity: 'high' });
+
+  useEffect(() => {
+    fetchPolicies();
+  }, [token]);
+
+  const fetchPolicies = async () => {
+    try {
+      const res = await fetch(`${API}/policies`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) setPolicies(await res.json());
+    } catch (err) {
+      console.error('Failed to fetch policies', err);
     }
-  ]);
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API}/policies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(form)
+      });
+      if (res.ok) {
+        fetchPolicies();
+        setShowForm(false);
+        setForm({ name: '', description: '', condition_field: 'risk_score', condition_operator: '>', condition_value: '80', action: 'block_download', severity: 'high' });
+      }
+    } catch (err) {
+      console.error('Failed to create policy', err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this policy?')) return;
+    try {
+      const res = await fetch(`${API}/policies/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) fetchPolicies();
+    } catch (err) {
+      console.error('Failed to delete policy', err);
+    }
+  };
 
   return (
-    <div className="flex flex-col h-full gap-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Policy Engine</h2>
-          <p className="text-sm text-text-secondary">Orchestrate automated security responses based on behavioral patterns.</p>
+          <h2 className="text-2xl font-bold flex items-center gap-3"><Shield className="text-sentinel-teal" /> Policy Manager</h2>
+          <p className="text-sm text-text-secondary mt-1">Define security rules that control file access and trigger alerts</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-sentinel-teal text-white rounded-lg text-sm font-bold shadow-lg shadow-sentinel-teal/20 hover:bg-sentinel-teal/80 transition-all">
-          <Plus size={18} />
-          CREATE POLICY
+        <button 
+          onClick={() => setShowForm(!showForm)}
+          className="px-4 py-2 bg-sentinel-teal hover:bg-sentinel-teal/80 text-white rounded-xl text-sm font-bold transition-colors flex items-center gap-2"
+        >
+          <Plus size={16} /> New Policy
         </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 flex-1 min-h-0">
-        {/* Policy Builder / Editor */}
-        <div className="xl:col-span-2 flex flex-col gap-6">
-          <div className="glass-panel p-6 flex-1 flex flex-col border-2 border-dashed border-sentinel-teal/20 bg-sentinel-teal/[0.02]">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-sentinel-teal">Visual Policy Builder</h3>
-              <div className="text-[10px] font-bold text-text-secondary px-2 py-1 bg-white/5 rounded">DRAFTING MODE</div>
+      {/* Create Policy Form */}
+      {showForm && (
+        <form onSubmit={handleCreate} className="glass-panel p-6 space-y-4 border border-sentinel-teal/30">
+          <h3 className="font-bold text-lg">Create New Policy</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1 block">Policy Name</label>
+              <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required placeholder="e.g., Block Bulk Downloads" className="w-full px-3 py-2 bg-white/5 border border-glass-border rounded-lg text-white placeholder-text-secondary focus:border-sentinel-teal" />
             </div>
-
-            <div className="flex flex-col items-center gap-4 py-12">
-              <RuleNode icon={<Network size={20} />} label="IF: Source Location" value="Outside Corporate HQ" />
-              <ArrowRight className="rotate-90 text-text-secondary opacity-30" size={24} />
-              <RuleNode icon={<Brain size={20} />} label="AND: Access Pattern" value="Unusual Frequency" />
-              <ArrowRight className="rotate-90 text-text-secondary opacity-30" size={24} />
-              <div className="w-full max-w-md p-6 bg-alert-red/10 border border-alert-red/30 rounded-2xl flex flex-col items-center text-center">
-                <div className="p-3 bg-alert-red/20 rounded-full mb-4">
-                  <Shield size={24} className="text-alert-red" />
-                </div>
-                <div className="text-xs font-bold uppercase tracking-widest text-alert-red mb-2">Then Trigger Actions</div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <span className="px-3 py-1 bg-alert-red/20 rounded-full text-[10px] font-bold">LOCK ACCESS</span>
-                  <span className="px-3 py-1 bg-alert-red/20 rounded-full text-[10px] font-bold">AUTO-AUDIT</span>
-                  <span className="px-3 py-1 bg-alert-red/20 rounded-full text-[10px] font-bold">CEO_NOTIFY</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-auto flex justify-center gap-4">
-               <button className="px-8 py-2 bg-glass-bg border border-glass-border rounded-lg text-xs font-bold">RESET BUILDER</button>
-               <button className="px-8 py-2 bg-white text-midnight-blue rounded-lg text-xs font-black">DEPLOY POLICY</button>
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1 block">Description</label>
+              <input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="What does this policy do?" className="w-full px-3 py-2 bg-white/5 border border-glass-border rounded-lg text-white placeholder-text-secondary focus:border-sentinel-teal" />
             </div>
           </div>
-        </div>
 
-        {/* Existing Policies List */}
-        <div className="xl:col-span-1 flex flex-col gap-4 overflow-y-auto pr-2">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-text-secondary px-2">Active Policies</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1 block">Condition</label>
+              <select value={form.condition_field} onChange={e => setForm({...form, condition_field: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-glass-border rounded-lg text-white">
+                <option value="risk_score">Risk Score</option>
+                <option value="download_count">Download Count</option>
+                <option value="access_time">Access Time</option>
+                <option value="classification">File Classification</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1 block">Operator</label>
+              <select value={form.condition_operator} onChange={e => setForm({...form, condition_operator: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-glass-border rounded-lg text-white">
+                <option value=">">Greater than</option>
+                <option value="<">Less than</option>
+                <option value="==">Equals</option>
+                <option value="!=">Not equals</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1 block">Value</label>
+              <input value={form.condition_value} onChange={e => setForm({...form, condition_value: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-glass-border rounded-lg text-white" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1 block">Action</label>
+              <select value={form.action} onChange={e => setForm({...form, action: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-glass-border rounded-lg text-white">
+                <option value="block_download">Block Download</option>
+                <option value="revoke_session">Revoke Session Token</option>
+                <option value="alert_admin">Alert Admin</option>
+                <option value="lock_file">Lock File</option>
+                <option value="send_email">Send Email Notification</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1 block">Severity</label>
+              <select value={form.severity} onChange={e => setForm({...form, severity: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-glass-border rounded-lg text-white">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button type="submit" className="px-6 py-2 bg-sentinel-teal hover:bg-sentinel-teal/80 text-white rounded-lg font-bold text-sm">Create Policy</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 rounded-lg font-bold text-sm">Cancel</button>
+          </div>
+        </form>
+      )}
+
+      {/* Policies List */}
+      {policies.length === 0 ? (
+        <div className="glass-panel p-12 text-center">
+          <Shield size={48} className="mx-auto text-text-secondary mb-4 opacity-50" />
+          <h3 className="text-lg font-bold mb-2">No policies defined</h3>
+          <p className="text-sm text-text-secondary">Create your first security policy to start enforcing rules on file access.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
           {policies.map(policy => (
-            <div key={policy.id} className="glass-panel p-5 space-y-4 hover:border-sentinel-teal/40 transition-all cursor-pointer">
-              <div className="flex justify-between items-start">
-                <div className="p-2 bg-sentinel-teal/10 rounded-lg">
-                  <Shield size={20} className="text-sentinel-teal" />
+            <div key={policy.id} className="glass-panel p-5 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`p-2 rounded-lg ${policy.severity === 'critical' || policy.severity === 'high' ? 'bg-alert-red/20 text-alert-red' : 'bg-sentinel-teal/20 text-sentinel-teal'}`}>
+                  {policy.severity === 'critical' || policy.severity === 'high' ? <AlertTriangle size={20} /> : <CheckCircle size={20} />}
                 </div>
-                <div className="flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-safe-green"></div>
-                   <span className="text-[10px] font-bold uppercase tracking-widest text-safe-green">Active</span>
-                   <button className="p-1 hover:bg-glass-bg rounded"><MoreHorizontal size={14} /></button>
+                <div>
+                  <div className="font-bold">{policy.name}</div>
+                  <div className="text-xs text-text-secondary mt-0.5">{policy.description || 'No description'}</div>
+                  <div className="text-[10px] text-text-secondary mt-1 font-mono">
+                    IF {policy.condition_field} {policy.condition_operator} {policy.condition_value} → {policy.action?.replace(/_/g, ' ').toUpperCase()}
+                  </div>
                 </div>
               </div>
-              <div>
-                <h4 className="font-bold text-sm">{policy.name}</h4>
-                <p className="text-xs text-text-secondary mt-1 leading-relaxed">{policy.description}</p>
-              </div>
-              <div className="pt-4 border-t border-glass-border flex items-center justify-between text-[10px] font-bold">
-                <div className="flex items-center gap-2">
-                  <Clock size={12} className="text-text-secondary" />
-                  <span>EDITED 2H AGO</span>
-                </div>
-                <div className="text-sentinel-teal">14 TRIGGERS (24H)</div>
+              <div className="flex items-center gap-3">
+                <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase ${
+                  policy.severity === 'critical' ? 'bg-alert-red text-white' : 
+                  policy.severity === 'high' ? 'bg-orange-500/20 text-orange-400' : 
+                  policy.severity === 'medium' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-safe-green/20 text-safe-green'
+                }`}>
+                  {policy.severity}
+                </span>
+                <button onClick={() => handleDelete(policy.id)} className="p-2 hover:bg-alert-red/20 rounded-lg text-text-secondary hover:text-alert-red transition-colors">
+                  <Trash2 size={16} />
+                </button>
               </div>
             </div>
           ))}
-          
-          <div className="glass-panel p-5 border-dashed opacity-50 space-y-1 text-center py-8">
-            <Plus className="mx-auto text-text-secondary mb-2" size={24} />
-            <div className="text-xs font-bold text-text-secondary">Drag Components Here</div>
-          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
-
-const RuleNode = ({ icon, label, value }) => (
-  <div className="w-full max-w-md p-4 bg-white/5 border border-glass-border rounded-xl flex items-center justify-between hover:bg-white/10 transition-all cursor-move group">
-    <div className="flex items-center gap-4">
-      <div className="p-2 bg-glass-bg rounded-lg group-hover:text-sentinel-teal transition-colors">
-        {icon}
-      </div>
-      <div>
-        <div className="text-[10px] font-bold text-text-secondary uppercase">{label}</div>
-        <div className="text-sm font-medium">{value}</div>
-      </div>
-    </div>
-    <div className="w-6 h-6 flex flex-col gap-1 items-center justify-center opacity-30 select-none">
-      <div className="w-4 h-0.5 bg-white"></div>
-      <div className="w-4 h-0.5 bg-white"></div>
-      <div className="w-4 h-0.5 bg-white"></div>
-    </div>
-  </div>
-);
 
 export default PolicyManagement;

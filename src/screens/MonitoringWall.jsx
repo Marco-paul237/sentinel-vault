@@ -1,138 +1,130 @@
 import React from 'react';
-import { Shield, Activity, Map, AlertTriangle, Clock, ListFilter } from 'lucide-react';
-import RiskBadge from '../components/RiskBadge';
+import { Shield, AlertTriangle, Activity, Wifi, User, Clock, Lock, FileText, MapPin, Zap } from 'lucide-react';
 
-const MonitoringWall = () => {
+const MonitoringWall = ({ auditLogs = [] }) => {
+  const realLogs = auditLogs.slice(0, 15);
+
   return (
     <div className="flex flex-col h-full gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-alert-red/10 rounded-lg">
-            <Activity size={24} className="text-alert-red animate-pulse" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">SOC Monitoring Wall</h2>
-            <p className="text-xs text-text-secondary uppercase tracking-widest font-bold">Live System Pulse: 142 EPS</p>
-          </div>
+        <div>
+          <h2 className="text-xl font-bold flex items-center gap-3">
+            <Activity className="text-sentinel-teal" size={24} />
+            TechForge SOC — Security Operations Center
+          </h2>
+          <p className="text-xs text-text-secondary mt-1">Real-time threat detection & IP protection enforcement</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="text-right mr-4 hidden sm:block">
-            <div className="text-xs font-bold text-text-secondary uppercase">Uptime</div>
-            <div className="text-sm font-mono">14d 02h 34m 12s</div>
+        <div className="flex gap-2">
+          <div className="px-3 py-1.5 bg-safe-green/20 text-safe-green text-[10px] font-bold rounded-full flex items-center gap-1">
+            <Wifi size={10} /> LIVE
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-glass-bg border border-glass-border rounded-lg text-sm font-bold">
-            <ListFilter size={16} />
-            FILTERS
-          </button>
         </div>
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-2 gap-4 flex-1 min-h-0">
-        {/* Heatmap Placeholder */}
-        <div className="xl:col-span-2 lg:col-span-2 glass-panel p-6 flex flex-col relative overflow-hidden bg-black/40">
-           <div className="flex items-center justify-between mb-6">
-             <h3 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-               <Map size={16} className="text-sentinel-teal" />
-               Geographic Threat Surface
-             </h3>
-             <div className="flex gap-4">
-               <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-safe-green"></div><span className="text-[10px] text-text-secondary font-bold">SECURE</span></div>
-               <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-alert-red animate-pulse"></div><span className="text-[10px] text-text-secondary font-bold">THREAT</span></div>
-             </div>
-           </div>
-           
-           <div className="flex-1 rounded-xl border border-glass-border bg-midnight-blue/40 relative overflow-hidden flex items-center justify-center">
-              <div className="absolute inset-0 opacity-20 pointer-events-none">
-                {/* Visual texture for a map */}
-                <div className="absolute inset-0 grid grid-cols-12 grid-rows-12 gap-1 px-4 py-4">
-                  {Array.from({ length: 144 }).map((_, i) => (
-                    <div key={i} className={`rounded-sm ${Math.random() > 0.8 ? 'bg-sentinel-teal/40' : 'bg-white/5'}`}></div>
-                  ))}
-                </div>
-              </div>
-              <div className="relative z-10 text-center">
-                <Map size={64} className="text-sentinel-teal/20 mx-auto mb-4" />
-                <div className="text-sm font-bold text-text-secondary">Interactive Heatmap Loading...</div>
-              </div>
-           </div>
-        </div>
-
-        {/* User Activity Matrix */}
-        <div className="glass-panel p-6 flex flex-col">
-          <h3 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
-            <Shield size={16} className="text-sentinel-teal" />
-            Active Session Matrix
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 flex-1 min-h-0">
+        {/* Normal Day: Amara's Activity */}
+        <div className="glass-panel p-5 flex flex-col">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-safe-green mb-4 flex items-center gap-2">
+            <Shield size={14} /> Normal Day — Amara Okafor
           </h3>
-          <div className="flex-1 flex flex-col gap-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="group p-3 hover:bg-white/5 rounded-lg border border-transparent hover:border-glass-border transition-all flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${i === 2 ? 'bg-alert-red animate-ping' : 'bg-safe-green'}`}></div>
-                  <div className="text-xs font-bold">USER_ID_{1000 + i}</div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-[10px] font-mono opacity-50">172.16.0.{i * 12}</div>
-                  <RiskBadge level={i === 2 ? 'high' : 'low'} score={i === 2 ? 92 : 4} />
+          <div className="space-y-3 flex-1 overflow-y-auto">
+            {[
+              { time: '9:00 AM', action: 'MFA Login (Authenticator App)', icon: <Lock size={12} />, detail: 'Lagos Office • Verified Device' },
+              { time: '9:02 AM', action: 'JWT Token Issued', icon: <Shield size={12} />, detail: 'Role: Senior Developer • Scope: AI Research' },
+              { time: '9:14 AM', action: 'Opened ai_core_algorithm_v3.py', icon: <FileText size={12} />, detail: 'Read Access • AES-256 Decrypted In-Memory' },
+              { time: '9:38 AM', action: 'Opened training_pipeline_config.yaml', icon: <FileText size={12} />, detail: 'Read Access • Watermark Applied' },
+              { time: '9:42 AM', action: 'Edited & Saved config.yaml', icon: <FileText size={12} />, detail: 'Write Access • Version 14 Created' },
+              { time: '12:30 PM', action: 'Session Idle — Auto-Locked', icon: <Lock size={12} />, detail: 'Automatic Security Timeout' },
+            ].map((event, i) => (
+              <div key={i} className="flex gap-3 p-3 bg-white/5 rounded-lg border border-glass-border/50">
+                <div className="p-1.5 bg-safe-green/10 rounded text-safe-green mt-0.5">{event.icon}</div>
+                <div>
+                  <div className="text-xs font-bold">{event.action}</div>
+                  <div className="text-[10px] text-text-secondary mt-0.5">{event.detail}</div>
+                  <div className="text-[10px] text-text-secondary flex items-center gap-1 mt-1"><Clock size={8} /> {event.time}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Alert Queue */}
-        <div className="glass-panel p-6 flex flex-col bg-alert-red/5 border-alert-red/20 shadow-[inset_0_0_40px_rgba(255,77,77,0.05)]">
-          <h3 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2 text-alert-red">
-            <AlertTriangle size={16} />
-            High-Priority Alerts
+        {/* Threat Day: Kwame's Activity */}
+        <div className="glass-panel p-5 flex flex-col border border-alert-red/30">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-alert-red mb-4 flex items-center gap-2">
+            <AlertTriangle size={14} /> Threat Day — Kwame Mensah
           </h3>
-          <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2">
-            <AlertItem 
-              id="ALR-2834" 
-              title="Brute Force Attempt" 
-              time="2m ago" 
-              severity="high" 
-              desc="Multiple failed authentications from Singapore node."
-            />
-            <AlertItem 
-              id="ALR-2831" 
-              title="Bulk Data Export" 
-              time="12m ago" 
-              severity="medium" 
-              desc="User 'jsmith' downloaded > 500MB of sensitive docs."
-            />
-            <AlertItem 
-              id="ALR-2829" 
-              title="Untrusted Device" 
-              time="45m ago" 
-              severity="low" 
-              desc="Access from unmanaged Linux workstation in HQ."
-            />
+          <div className="space-y-3 flex-1 overflow-y-auto">
+            {[
+              { time: '11:00 PM', action: 'Login from Unknown VPN', icon: <User size={12} />, detail: 'Accra, GH • Unrecognized Device • ⚠️ Flagged', danger: true },
+              { time: '11:01 PM', action: 'Navigated to AI Algorithm Folder', icon: <FileText size={12} />, detail: 'Anomaly: Account flagged "recently resigned"', danger: true },
+              { time: '11:02 PM', action: 'Bulk Download Initiated (47 files)', icon: <Zap size={12} />, detail: '🚨 ANOMALY: Mass exfiltration pattern detected', danger: true },
+              { time: '11:02 PM', action: '⛔ SESSION REVOKED BY SYSTEM', icon: <Lock size={12} />, detail: 'Real-Time Monitor auto-terminated JWT token', system: true },
+              { time: '11:02 PM', action: '🔒 FILES LOCKED', icon: <Lock size={12} />, detail: '12 files in AI Algorithm/ locked from download', system: true },
+              { time: '11:02 PM', action: '🚨 EMERGENCY ALERT SENT', icon: <AlertTriangle size={12} />, detail: 'IT Security Team notified via Dashboard + SMS', system: true },
+              { time: '11:03 PM', action: '📋 FORENSIC AUDIT GENERATED', icon: <FileText size={12} />, detail: 'Incident #TF-2024-0087 — Evidence for Legal Team', system: true },
+            ].map((event, i) => (
+              <div key={i} className={`flex gap-3 p-3 rounded-lg border ${event.system ? 'bg-yellow-500/10 border-yellow-500/30' : event.danger ? 'bg-alert-red/10 border-alert-red/30' : 'bg-white/5 border-glass-border/50'}`}>
+                <div className={`p-1.5 rounded mt-0.5 ${event.system ? 'bg-yellow-500/20 text-yellow-500' : 'bg-alert-red/10 text-alert-red'}`}>{event.icon}</div>
+                <div>
+                  <div className={`text-xs font-bold ${event.system ? 'text-yellow-400' : ''}`}>{event.action}</div>
+                  <div className="text-[10px] text-text-secondary mt-0.5">{event.detail}</div>
+                  <div className="text-[10px] text-text-secondary flex items-center gap-1 mt-1"><Clock size={8} /> {event.time}</div>
+                </div>
+              </div>
+            ))}
           </div>
-          <button className="w-full mt-4 py-3 bg-alert-red/20 text-alert-red hover:bg-alert-red/30 rounded-lg text-xs font-black transition-all border border-alert-red/40 uppercase tracking-widest">
-            Acknowledge All
-          </button>
+        </div>
+
+        {/* Real-time Incident Feed */}
+        <div className="glass-panel p-5 flex flex-col border border-sentinel-teal/30">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-sentinel-teal mb-4 flex items-center gap-2">
+            <Zap size={14} className="animate-pulse" /> Real-Time Security Feed
+          </h3>
+          <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+            {realLogs.length > 0 ? realLogs.map((log) => (
+              <div key={log.id} className={`flex gap-3 p-3 rounded-lg border transition-all hover:bg-white/5 ${log.risk_score > 50 ? 'bg-alert-red/10 border-alert-red/30' : 'bg-white/5 border-glass-border/50'}`}>
+                <div className={`p-1.5 rounded mt-0.5 ${log.risk_score > 50 ? 'bg-alert-red/20 text-alert-red' : 'bg-sentinel-teal/20 text-sentinel-teal'}`}>
+                  {log.event_type.includes('DOWNLOAD') ? <Zap size={12} /> : log.event_type.includes('UPLOAD') ? <FileText size={12} /> : <User size={12} />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-xs font-bold truncate">{log.event_type.replace(/_/g, ' ')}</div>
+                    <div className={`text-[10px] font-bold ${log.risk_score > 50 ? 'text-alert-red' : 'text-sentinel-teal'}`}>{log.risk_score}</div>
+                  </div>
+                  <div className="text-[10px] text-text-secondary mt-0.5 truncate">{log.user_email || 'SYSTEM'}</div>
+                  <div className="text-[10px] text-text-secondary mt-0.5 italic truncate">{log.file_name || log.details || 'No details'}</div>
+                  <div className="text-[10px] text-text-secondary flex items-center gap-1 mt-1 opacity-70">
+                    <Clock size={8} /> 
+                    {log.created_at ? new Date(log.created_at.replace(' ', 'T')).toLocaleTimeString() : 'Just now'}
+                  </div>
+                </div>
+              </div>
+            )) : (
+              <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
+                <Activity size={32} className="mb-2" />
+                <p className="text-xs">Waiting for live events...</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Real-time Ticker */}
       <div className="h-12 glass-panel flex items-center px-6 gap-6 relative overflow-hidden select-none">
-        <div className="flex items-center gap-2 text-sentinel-teal shrink-0">
-          <Clock size={16} />
-          <span className="text-xs font-black uppercase tracking-widest">Live Stream</span>
-        </div>
+        <div className="text-[10px] uppercase tracking-widest text-sentinel-teal font-black whitespace-nowrap">LIVE FEED</div>
         <div className="w-px h-4 bg-glass-border"></div>
         <div className="flex-1 whitespace-nowrap text-xs font-mono text-text-secondary flex gap-12 animate-marquee">
-          <div>[INFO] Blocked 12 traversal attempts from 182.23.102.11</div>
-          <div className="text-safe-green">[SUCCESS] Daily encryption sweep completed. 1,204 files verified.</div>
-          <div className="text-alert-red">[WARN] Unusual behavioral pattern detected for user [UID_2932].</div>
-          <div>[INFO] System latency within normal bounds: 42ms</div>
-          <div className="text-sentinel-teal">[SENTINEL] Database integrity check PASSED at 18:24:01</div>
+          <span>09:14 — Amara Okafor accessed ai_core_algorithm_v3.py [NORMAL]</span>
+          <span className="text-alert-red">23:02 — 🚨 KWAME MENSAH BULK DOWNLOAD BLOCKED — SESSION REVOKED</span>
+          <span>23:18 — IT Security acknowledged Incident #TF-2024-0087</span>
+          <span>09:14 — Amara Okafor accessed ai_core_algorithm_v3.py [NORMAL]</span>
+          <span className="text-alert-red">23:02 — 🚨 KWAME MENSAH BULK DOWNLOAD BLOCKED — SESSION REVOKED</span>
+          <span>23:18 — IT Security acknowledged Incident #TF-2024-0087</span>
         </div>
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-bg-primary to-transparent z-10 pointer-events-none"></div>
       </div>
-      
+
       <style>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -141,23 +133,22 @@ const MonitoringWall = () => {
         .animate-marquee {
           animation: marquee 30s linear infinite;
         }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(0, 168, 150, 0.2);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 168, 150, 0.4);
+        }
       `}</style>
     </div>
   );
 };
-
-const AlertItem = ({ id, title, time, severity, desc }) => (
-  <div className="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2 hover:bg-white/10 transition-colors cursor-pointer group">
-    <div className="flex justify-between items-center">
-      <span className="text-[10px] font-mono text-text-secondary">{id}</span>
-      <span className="text-[10px] text-text-secondary">{time}</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <div className={`w-1.5 h-1.5 rounded-full ${severity === 'high' ? 'bg-alert-red' : severity === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'}`}></div>
-      <div className="text-xs font-bold group-hover:text-white transition-colors">{title}</div>
-    </div>
-    <p className="text-[10px] text-text-secondary leading-normal">{desc}</p>
-  </div>
-);
 
 export default MonitoringWall;

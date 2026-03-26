@@ -1,8 +1,8 @@
 import React from 'react';
 import Logo from './Logo';
-import { Shield, Bell, User, Search, Menu, LayoutDashboard, FolderTree, Activity, ShieldCheck, Settings } from 'lucide-react';
+import { Shield, Bell, User, Search, Menu, LayoutDashboard, FolderTree, Activity, ShieldCheck, Settings, LogOut } from 'lucide-react';
 
-const Layout = ({ children, activeTab, onTabChange }) => {
+const Layout = ({ children, activeTab, onTabChange, user, onLogout }) => {
   return (
     <div className="flex h-screen bg-bg-primary text-text-primary overflow-hidden">
       {/* Sidebar - Desktop */}
@@ -85,12 +85,15 @@ const Layout = ({ children, activeTab, onTabChange }) => {
             
             <div className="flex items-center gap-3 pl-2">
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-semibold">Security Admin</div>
-                <div className="text-xs text-text-secondary">Level 5 Access</div>
+                <div className="text-sm font-semibold">{user?.email || 'User'}</div>
+                <div className="text-xs text-text-secondary">{user?.role || 'user'}</div>
               </div>
               <div className="w-10 h-10 rounded-full bg-sentinel-teal/20 border border-sentinel-teal/40 flex items-center justify-center overflow-hidden">
                 <User size={24} className="text-sentinel-teal" />
               </div>
+              <button onClick={onLogout} className="p-2 hover:bg-alert-red/20 rounded-lg text-text-secondary hover:text-alert-red transition-colors" title="Logout">
+                <LogOut size={18} />
+              </button>
             </div>
           </div>
         </header>

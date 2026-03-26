@@ -1,154 +1,148 @@
 import React, { useEffect, useRef } from 'react';
-import { Shield, Zap, Users, FileText, Globe } from 'lucide-react';
+import { Shield, Zap, Users, FileText, Globe, Lock, AlertTriangle, Server, Database, Cloud } from 'lucide-react';
 import * as d3 from 'd3';
 
 const ExecutiveDashboard = () => {
   const globeRef = useRef(null);
 
   useEffect(() => {
-    // Basic D3 setup for a "pulse" effect representing global monitoring
     if (!globeRef.current) return;
-
     const svg = d3.select(globeRef.current);
     const width = 300;
     const height = 300;
-    
     svg.selectAll("*").remove();
-    
-    const g = svg.append("g")
-      .attr("transform", `translate(${width/2},${height/2})`);
+    const g = svg.append("g").attr("transform", `translate(${width/2},${height/2})`);
 
-    // Draw rings
     for (let i = 1; i <= 3; i++) {
-      g.append("circle")
-        .attr("r", i * 40)
-        .attr("fill", "none")
-        .attr("stroke", "var(--color-sentinel-teal)")
-        .attr("stroke-width", 1)
-        .attr("opacity", 0.5 / i)
-        .append("animate")
-        .attr("attributeName", "r")
-        .attr("from", i * 40)
-        .attr("to", (i + 1) * 40)
-        .attr("dur", "3s")
-        .attr("repeatCount", "indefinite");
-        
-      g.append("circle")
-        .attr("r", i * 40)
-        .attr("fill", "none")
-        .attr("stroke", "var(--color-sentinel-teal)")
-        .attr("stroke-width", 1)
-        .attr("opacity", 0.5 / i)
-        .append("animate")
-        .attr("attributeName", "opacity")
-        .attr("from", 0.5 / i)
-        .attr("to", 0)
-        .attr("dur", "3s")
-        .attr("repeatCount", "indefinite");
+      g.append("circle").attr("r", i * 40).attr("fill", "none").attr("stroke", "var(--color-sentinel-teal)").attr("stroke-width", 1).attr("opacity", 0.5 / i)
+        .append("animate").attr("attributeName", "r").attr("from", i * 40).attr("to", (i + 1) * 40).attr("dur", "3s").attr("repeatCount", "indefinite");
+      g.append("circle").attr("r", i * 40).attr("fill", "none").attr("stroke", "var(--color-sentinel-teal)").attr("stroke-width", 1).attr("opacity", 0.5 / i)
+        .append("animate").attr("attributeName", "opacity").attr("from", 0.5 / i).attr("to", 0).attr("dur", "3s").attr("repeatCount", "indefinite");
     }
 
-    // Central Sphere
-    const gradient = svg.append("defs")
-      .append("radialGradient")
-      .attr("id", "globeGradient");
-    
+    const gradient = svg.append("defs").append("radialGradient").attr("id", "globeGradient");
     gradient.append("stop").attr("offset", "0%").attr("stop-color", "var(--color-sentinel-teal)");
     gradient.append("stop").attr("offset", "100%").attr("stop-color", "var(--color-midnight-blue)");
+    g.append("circle").attr("r", 35).attr("fill", "url(#globeGradient)").attr("filter", "blur(2px)");
 
-    g.append("circle")
-      .attr("r", 35)
-      .attr("fill", "url(#globeGradient)")
-      .attr("filter", "blur(2px)");
+    // Access points for Lagos and Accra
+    const accessPoints = [
+      { label: 'Lagos (Amara)', angle: 0.4, dist: 70, color: 'var(--color-safe-green)' },
+      { label: 'Accra (Kwame)', angle: 2.8, dist: 90, color: 'var(--color-alert-red)' },
+      { label: 'AWS US-East', angle: 4.2, dist: 60, color: 'var(--color-sentinel-teal)' },
+      { label: 'GCS EU-West', angle: 5.5, dist: 80, color: 'var(--color-sentinel-teal)' },
+    ];
 
-    // Add random dots for access points
-    for (let i = 0; i < 8; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = 40 + Math.random() * 80;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-        
-        g.append("circle")
-            .attr("cx", x)
-            .attr("cy", y)
-            .attr("r", 3)
-            .attr("fill", "var(--color-sentinel-teal)")
-            .attr("opacity", 0.8)
-            .append("animate")
-            .attr("attributeName", "opacity")
-            .attr("values", "0.8;0.2;0.8")
-            .attr("dur", `${2 + Math.random() * 2}s`)
-            .attr("repeatCount", "indefinite");
-            
-        g.append("line")
-            .attr("x1", 0)
-            .attr("y1", 0)
-            .attr("x2", x)
-            .attr("y2", y)
-            .attr("stroke", "var(--color-sentinel-teal)")
-            .attr("stroke-width", 0.5)
-            .attr("opacity", 0.2);
-    }
+    accessPoints.forEach(p => {
+      const x = Math.cos(p.angle) * p.dist;
+      const y = Math.sin(p.angle) * p.dist;
+      g.append("circle").attr("cx", x).attr("cy", y).attr("r", 4).attr("fill", p.color).attr("opacity", 0.9)
+        .append("animate").attr("attributeName", "opacity").attr("values", "0.9;0.3;0.9").attr("dur", "2s").attr("repeatCount", "indefinite");
+      g.append("line").attr("x1", 0).attr("y1", 0).attr("x2", x).attr("y2", y).attr("stroke", p.color).attr("stroke-width", 0.8).attr("opacity", 0.3);
+    });
   }, []);
 
   return (
     <div className="space-y-6">
+      {/* Company Header */}
+      <div className="glass-panel p-5 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-black tracking-tight">TechForge Solutions</h2>
+          <p className="text-xs text-text-secondary mt-1">Cloud-Native IP Protection File System — Proprietary AI Algorithm Vault</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="px-3 py-1 bg-alert-red/20 border border-alert-red/40 rounded-full text-[10px] font-bold text-alert-red animate-pulse">
+            1 ACTIVE INCIDENT
+          </div>
+          <div className="px-3 py-1 bg-safe-green/20 border border-safe-green/40 rounded-full text-[10px] font-bold text-safe-green">
+            SYSTEM OPERATIONAL
+          </div>
+        </div>
+      </div>
+
       {/* Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard icon={<FileText className="text-sentinel-teal" />} label="Files Accessed (24h)" value="1,284" trend="+12%" />
-        <MetricCard icon={<Zap className="text-yellow-500" />} label="Unusual Activities" value="3" trend="-20%" />
-        <MetricCard icon={<Users className="text-blue-500" />} label="Active Sessions" value="42" trend="+5" />
-        <MetricCard icon={<Shield className="text-safe-green" />} label="Compliance Status" value="98.2%" trend="Stable" />
+        <MetricCard icon={<FileText className="text-sentinel-teal" />} label="Protected IP Files" value="2,847" trend="+34" />
+        <MetricCard icon={<AlertTriangle className="text-alert-red" />} label="Threats Blocked (30d)" value="12" trend="+3" />
+        <MetricCard icon={<Users className="text-blue-500" />} label="Active Developers" value="18" trend="Stable" />
+        <MetricCard icon={<Shield className="text-safe-green" />} label="Encryption Coverage" value="100%" trend="AES-256" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Animated Visualization Area */}
+        {/* Globe Visualization */}
         <div className="lg:col-span-2 glass-panel p-6 flex flex-col items-center justify-center min-h-[450px] relative overflow-hidden">
           <div className="absolute top-6 left-6 flex items-center gap-2">
             <Globe size={20} className="text-sentinel-teal" />
             <h3 className="font-bold">Global Access Monitoring</h3>
           </div>
-          
-          <svg 
-            ref={globeRef} 
-            width="300" 
-            height="300" 
-            className="drop-shadow-[0_0_15px_rgba(0,168,150,0.3)]"
-          />
-          
+          <svg ref={globeRef} width="300" height="300" className="drop-shadow-[0_0_15px_rgba(0,168,150,0.3)]" />
           <div className="mt-8 text-center">
-            <div className="text-4xl font-black text-white mb-2">12</div>
+            <div className="text-4xl font-black text-white mb-2">7</div>
             <div className="text-xs uppercase tracking-[0.2em] text-sentinel-teal font-bold">Aggregate System Risk Score</div>
             <p className="text-text-secondary text-sm mt-4 max-w-md">
-              Real-time heuristic analysis active across 14 global regions. Status: <span className="text-safe-green font-bold text-[10px] tracking-widest uppercase ml-1">Optimal</span>
+              Monitoring TechForge's AI algorithm vault across 4 global nodes. Status: <span className="text-safe-green font-bold text-[10px] tracking-widest uppercase ml-1">Secure</span>
             </p>
           </div>
         </div>
 
-        {/* Risk Breakdown Area */}
+        {/* Risk Breakdown — Threat Scenario */}
         <div className="glass-panel p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
               <Zap size={20} className="text-sentinel-teal" />
-              Risk Breakdown
+              Security Posture
             </h3>
             <div className="space-y-6">
-              <RiskFactor label="Authentication Strength" value={95} color="var(--color-safe-green)" />
-              <RiskFactor label="Location Security" value={72} color="var(--color-sentinel-teal)" />
-              <RiskFactor label="Behavioral Anomaly" value={15} color="var(--color-alert-red)" />
-              <RiskFactor label="Device Compliance" value={88} color="var(--color-sentinel-teal)" />
+              <RiskFactor label="MFA Compliance" value={100} color="var(--color-safe-green)" />
+              <RiskFactor label="JWT Token Integrity" value={98} color="var(--color-safe-green)" />
+              <RiskFactor label="Behavioral Anomaly Index" value={72} color="var(--color-alert-red)" />
+              <RiskFactor label="RBAC Policy Coverage" value={95} color="var(--color-sentinel-teal)" />
             </div>
           </div>
           
-          <div className="mt-8 p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="mt-8 p-4 rounded-xl bg-alert-red/10 border border-alert-red/30">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Active Alerts</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-alert-red font-bold">3 CRITICAL</span>
+              <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Last Incident</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-alert-red font-bold animate-pulse">RESOLVED</span>
             </div>
-            <div className="text-sm font-medium">Multiple failed logins from unknown region.</div>
-            <button className="w-full mt-4 py-2 bg-glass-bg hover:bg-glass-border rounded-lg text-xs font-bold transition-all border border-glass-border">
-              VIEW ALERT QUEUE
-            </button>
+            <div className="text-sm font-medium">Kwame Mensah — Bulk download blocked, session revoked.</div>
+            <div className="text-[10px] text-text-secondary mt-1">11:02 PM • Forensic report generated for Legal.</div>
           </div>
+        </div>
+      </div>
+
+      {/* Technology Stack Table */}
+      <div className="glass-panel p-6">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Server size={20} className="text-sentinel-teal" />
+          Technology Stack
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-glass-border">
+                <th className="text-left py-3 px-4 text-[10px] uppercase tracking-widest text-text-secondary font-bold">Layer</th>
+                <th className="text-left py-3 px-4 text-[10px] uppercase tracking-widest text-text-secondary font-bold">Technologies</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Containerization', 'Docker, Kubernetes'],
+                ['Cloud Storage', 'AWS S3 / Azure Blob / Google Cloud Storage'],
+                ['Auth', 'OAuth 2.0, JWT, MFA'],
+                ['Encryption', 'AES-256, TLS, Cloud KMS'],
+                ['Event Streaming', 'Apache Kafka / AWS Kinesis'],
+                ['Monitoring & Alerts', 'Elasticsearch, Grafana, AWS CloudWatch'],
+                ['Backend', 'Node.js / Python (FastAPI)'],
+                ['Database', 'PostgreSQL (metadata), Redis (sessions)'],
+              ].map(([layer, tech], i) => (
+                <tr key={i} className="border-b border-glass-border/50 hover:bg-white/5 transition-colors">
+                  <td className="py-3 px-4 font-bold text-sentinel-teal">{layer}</td>
+                  <td className="py-3 px-4 font-mono text-xs text-text-secondary">{tech}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -163,7 +157,7 @@ const MetricCard = ({ icon, label, value, trend }) => (
     <div className="relative z-10">
       <div className="text-text-secondary text-sm font-medium mb-1">{label}</div>
       <div className="text-2xl font-bold mb-2">{value}</div>
-      <div className={`text-xs font-semibold ${trend.startsWith('-') ? 'text-alert-red' : 'text-safe-green'}`}>
+      <div className={`text-xs font-semibold ${trend.startsWith && trend.startsWith('-') ? 'text-alert-red' : 'text-safe-green'}`}>
         {trend} <span className="text-text-secondary font-normal ml-1">vs last period</span>
       </div>
     </div>
@@ -177,10 +171,7 @@ const RiskFactor = ({ label, value, color }) => (
       <span>{value}%</span>
     </div>
     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-      <div 
-        className="h-full transition-all duration-1000" 
-        style={{ width: `${value}%`, backgroundColor: color }}
-      ></div>
+      <div className="h-full transition-all duration-1000" style={{ width: `${value}%`, backgroundColor: color }}></div>
     </div>
   </div>
 );
