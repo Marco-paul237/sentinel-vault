@@ -95,21 +95,21 @@ function App() {
   const renderContent = () => {
     switch(activeTab) {
       case 'dashboard':
-        return <ExecutiveDashboard />;
+        return <ExecutiveDashboard auditLogs={auditLogs} />;
       case 'explorer':
-        return <FileExplorer onFileSelect={handleFileSelect} token={token} onUpload={fetchAuditLogs} />;
+        return <FileExplorer onFileSelect={handleFileSelect} token={token} onUpload={fetchAuditLogs} user={user} />;
       case 'policy':
         return <PolicyManagement token={token} />;
       case 'detail':
         return selectedFile ? (
           <FileAccessDetail file={selectedFile} onBack={() => setActiveTab('explorer')} token={token} onAction={fetchAuditLogs} />
         ) : (
-          <FileExplorer onFileSelect={handleFileSelect} token={token} onUpload={fetchAuditLogs} />
+          <FileExplorer onFileSelect={handleFileSelect} token={token} onUpload={fetchAuditLogs} user={user} />
         );
       case 'activity':
         return <MonitoringWall auditLogs={auditLogs} />;
       default:
-        return <ExecutiveDashboard />;
+        return <ExecutiveDashboard auditLogs={auditLogs} />;
     }
   };
 
@@ -117,7 +117,7 @@ function App() {
     <Layout activeTab={activeTab} onTabChange={(tab) => {
       setActiveTab(tab);
       if (tab !== 'detail') setSelectedFile(null);
-    }} user={user} onLogout={handleLogout}>
+    }} user={user} onLogout={handleLogout} auditLogs={auditLogs}>
       <div className="space-y-8 h-full">
         {renderContent()}
         

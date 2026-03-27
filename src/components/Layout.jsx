@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Logo from './Logo';
-import { Shield, Bell, User, Search, Menu, LayoutDashboard, FolderTree, Activity, ShieldCheck, Settings, LogOut } from 'lucide-react';
+import { Shield, Bell, User, Search, Menu, LayoutDashboard, FolderTree, Activity, ShieldCheck, Settings, LogOut, AlertTriangle, Clock } from 'lucide-react';
 
-const Layout = ({ children, activeTab, onTabChange, user, onLogout }) => {
+const Layout = ({ children, activeTab, onTabChange, user, onLogout, auditLogs = [] }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  const highRiskAlerts = auditLogs
+    .filter(log => log.risk_score > 60)
+    .slice(0, 5);
+  
+  const unreadCount = highRiskAlerts.length;
   return (
     <div className="flex h-screen bg-bg-primary text-text-primary overflow-hidden">
       {/* Sidebar - Desktop */}
@@ -76,10 +83,56 @@ const Layout = ({ children, activeTab, onTabChange, user, onLogout }) => {
               <span className="text-sm font-medium">Risk Level: <span className="text-safe-green">Low (12)</span></span>
             </div>
 
-            <button className="p-2 hover:bg-glass-bg rounded-lg relative">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-alert-red rounded-full"></span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={`p-2 rounded-lg relative transition-colors ${showNotifications ? 'bg-sentinel-teal text-white' : 'hover:bg-glass-bg'}`}
+              >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-alert-red rounded-full animate-pulse border border-bg-primary"></span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-3 w-80 glass-panel shadow-2xl z-50 overflow-hidden border-sentinel-teal/30">
+                  <div className="p-4 border-b border-glass-border flex justify-between items-center bg-white/5">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-sentinel-teal">Security Alerts</h4>
+                    <span className="text-[10px] bg-alert-red/20 text-alert-red px-1.5 py-0.5 rounded-full font-bold">{unreadCount} Critical</span>
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    {highRiskAlerts.length > 0 ? highRiskAlerts.map(alert => (
+                      <div key={alert.id} className="p-4 border-b border-glass-border/50 hover:bg-white/5 transition-colors cursor-pointer group">
+                        <div className="flex gap-3">
+                          <div className="mt-1 p-1.5 rounded-lg bg-alert-red/10 text-alert-red group-hover:bg-alert-red group-hover:text-white transition-colors">
+                            <AlertTriangle size={14} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-bold truncate">{alert.event_type.replace(/_/g, ' ')}</div>
+                            <div className="text-[10px] text-text-secondary mt-1 truncate">{alert.user_email}</div>
+                            <div className="flex items-center gap-1 mt-2 text-[9px] text-text-secondary">
+                              <Clock size={10} /> {alert.created_at ? new Date(alert.created_at.replace(' ', 'T')).toLocaleTimeString() : '--:--:--'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="p-8 text-center text-xs text-text-secondary opacity-50">
+                        No critical alerts detected
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3 text-center bg-white/5 border-t border-glass-border">
+                    <button 
+                      onClick={() => { onTabChange('activity'); setShowNotifications(false); }}
+                      className="text-[10px] font-bold text-sentinel-teal hover:underline"
+                    >
+                      VIEW ALL ACTIVITY
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             
             <div className="h-8 w-px bg-glass-border"></div>
             

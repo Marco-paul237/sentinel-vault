@@ -1,9 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { Shield, Zap, Users, FileText, Globe, Lock, AlertTriangle, Server, Database, Cloud } from 'lucide-react';
+import { Shield, Zap, Users, FileText, Globe, Lock, AlertTriangle, Server, Database, Cloud, Activity } from 'lucide-react';
 import * as d3 from 'd3';
 
-const ExecutiveDashboard = () => {
+const ExecutiveDashboard = ({ auditLogs = [] }) => {
   const globeRef = useRef(null);
+  
+  const highRiskLogs = auditLogs.filter(log => log.risk_score > 60);
+  const lastIncident = highRiskLogs[0] || null;
 
   useEffect(() => {
     if (!globeRef.current) return;
@@ -25,12 +28,12 @@ const ExecutiveDashboard = () => {
     gradient.append("stop").attr("offset", "100%").attr("stop-color", "var(--color-midnight-blue)");
     g.append("circle").attr("r", 35).attr("fill", "url(#globeGradient)").attr("filter", "blur(2px)");
 
-    // Access points for Lagos and Accra
+    // Access points for Real-time Monitoring
     const accessPoints = [
-      { label: 'Lagos (Amara)', angle: 0.4, dist: 70, color: 'var(--color-safe-green)' },
-      { label: 'Accra (Kwame)', angle: 2.8, dist: 90, color: 'var(--color-alert-red)' },
-      { label: 'AWS US-East', angle: 4.2, dist: 60, color: 'var(--color-sentinel-teal)' },
-      { label: 'GCS EU-West', angle: 5.5, dist: 80, color: 'var(--color-sentinel-teal)' },
+      { label: 'Primary Node', angle: 0.4, dist: 70, color: 'var(--color-safe-green)' },
+      { label: 'Secondary Node', angle: 2.8, dist: 90, color: 'var(--color-sentinel-teal)' },
+      { label: 'Cloud AWS', angle: 4.2, dist: 60, color: 'var(--color-sentinel-teal)' },
+      { label: 'Cloud GCP', angle: 5.5, dist: 80, color: 'var(--color-sentinel-teal)' },
     ];
 
     accessPoints.forEach(p => {
@@ -102,47 +105,43 @@ const ExecutiveDashboard = () => {
           
           <div className="mt-8 p-4 rounded-xl bg-alert-red/10 border border-alert-red/30">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Last Incident</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-alert-red font-bold animate-pulse">RESOLVED</span>
+              <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Last Critical Incident</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${lastIncident ? 'bg-alert-red animate-pulse' : 'bg-safe-green'}`}>
+                {lastIncident ? 'ACTIVE' : 'NONE'}
+              </span>
             </div>
-            <div className="text-sm font-medium">Kwame Mensah — Bulk download blocked, session revoked.</div>
-            <div className="text-[10px] text-text-secondary mt-1">11:02 PM • Forensic report generated for Legal.</div>
+            {lastIncident ? (
+              <>
+                <div className="text-sm font-medium">{lastIncident.event_type.replace(/_/g, ' ')} — {lastIncident.details}</div>
+                <div className="text-[10px] text-text-secondary mt-1">{lastIncident.created_at ? new Date(lastIncident.created_at.replace(' ', 'T')).toLocaleString() : 'Just now'} • Recorded by SENTINEL CORE.</div>
+              </>
+            ) : (
+              <div className="text-sm font-medium text-text-secondary">No critical incidents recently recorded. System is secure.</div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Technology Stack Table */}
       <div className="glass-panel p-6">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Server size={20} className="text-sentinel-teal" />
-          Technology Stack
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-sentinel-teal">
+          <Activity size={20} />
+          Recent Security Stream
         </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-glass-border">
-                <th className="text-left py-3 px-4 text-[10px] uppercase tracking-widest text-text-secondary font-bold">Layer</th>
-                <th className="text-left py-3 px-4 text-[10px] uppercase tracking-widest text-text-secondary font-bold">Technologies</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ['Containerization', 'Docker, Kubernetes'],
-                ['Cloud Storage', 'AWS S3 / Azure Blob / Google Cloud Storage'],
-                ['Auth', 'OAuth 2.0, JWT, MFA'],
-                ['Encryption', 'AES-256, TLS, Cloud KMS'],
-                ['Event Streaming', 'Apache Kafka / AWS Kinesis'],
-                ['Monitoring & Alerts', 'Elasticsearch, Grafana, AWS CloudWatch'],
-                ['Backend', 'Node.js / Python (FastAPI)'],
-                ['Database', 'PostgreSQL (metadata), Redis (sessions)'],
-              ].map(([layer, tech], i) => (
-                <tr key={i} className="border-b border-glass-border/50 hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4 font-bold text-sentinel-teal">{layer}</td>
-                  <td className="py-3 px-4 font-mono text-xs text-text-secondary">{tech}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-2">
+          {auditLogs.slice(0, 5).map(log => (
+            <div key={log.id} className="flex items-center justify-between p-3 bg-white/5 border border-glass-border rounded-lg hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-4">
+                <div className={`w-2 h-2 rounded-full ${log.risk_score > 50 ? 'bg-alert-red' : 'bg-sentinel-teal'}`}></div>
+                <div>
+                  <div className="text-sm font-bold">{log.event_type.replace(/_/g, ' ')}</div>
+                  <div className="text-[10px] text-text-secondary">{log.user_email}</div>
+                </div>
+              </div>
+              <div className="text-xs font-mono text-text-secondary">
+                {log.created_at ? new Date(log.created_at.replace(' ', 'T')).toLocaleTimeString() : '--:--:--'}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

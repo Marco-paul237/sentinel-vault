@@ -17,6 +17,7 @@ dist-ssr/
 backend/server/sentinel.db
 backend/server/sentinel.db-journal
 backend/server/sentinel.db-wal
+backend/server/sentinel.db-shm
 backend/server/uploads/
 backend/**/node_modules/
 backend/**/dist/

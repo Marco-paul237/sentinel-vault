@@ -1,138 +1,146 @@
 import React from 'react';
-import { Shield, AlertTriangle, Activity, Wifi, User, Clock, Lock, FileText, MapPin, Zap } from 'lucide-react';
+import { Shield, Activity, Wifi, User, Clock, FileText, Zap, Globe, AlertCircle } from 'lucide-react';
 
 const MonitoringWall = ({ auditLogs = [] }) => {
-  const realLogs = auditLogs.slice(0, 15);
+  const realLogs = auditLogs.slice(0, 50); // Show more logs in this dedicated view
+  const highRiskLogs = realLogs.filter(log => log.risk_score > 50);
 
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold flex items-center gap-3">
-            <Activity className="text-sentinel-teal" size={24} />
-            TechForge SOC — Security Operations Center
-          </h2>
-          <p className="text-xs text-text-secondary mt-1">Real-time threat detection & IP protection enforcement</p>
+      <div className="flex items-center justify-between glass-panel p-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-sentinel-teal/20 rounded-xl">
+            <Activity className="text-sentinel-teal" size={32} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">TechForge SOC Dashboard</h2>
+            <div className="flex items-center gap-4 mt-1">
+              <p className="text-xs text-text-secondary">Security Operations Center — Real-time Audit & IP Protection</p>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-safe-green/20 text-safe-green text-[10px] font-bold rounded-full border border-safe-green/30">
+                <Wifi size={10} className="animate-pulse" /> SYSTEM LIVE
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <div className="px-3 py-1.5 bg-safe-green/20 text-safe-green text-[10px] font-bold rounded-full flex items-center gap-1">
-            <Wifi size={10} /> LIVE
+        
+        <div className="hidden md:flex gap-6">
+          <div className="text-right">
+            <div className="text-[10px] text-text-secondary uppercase font-bold tracking-widest mb-1">Total Events</div>
+            <div className="text-2xl font-mono font-bold text-white">{auditLogs.length}</div>
+          </div>
+          <div className="w-px h-10 bg-glass-border"></div>
+          <div className="text-right">
+            <div className="text-[10px] text-text-secondary uppercase font-bold tracking-widest mb-1">High Risk Alerts</div>
+            <div className="text-2xl font-mono font-bold text-alert-red">{highRiskLogs.length}</div>
           </div>
         </div>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 flex-1 min-h-0">
-        {/* Normal Day: Amara's Activity */}
-        <div className="glass-panel p-5 flex flex-col">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-safe-green mb-4 flex items-center gap-2">
-            <Shield size={14} /> Normal Day — Amara Okafor
-          </h3>
-          <div className="space-y-3 flex-1 overflow-y-auto">
-            {[
-              { time: '9:00 AM', action: 'MFA Login (Authenticator App)', icon: <Lock size={12} />, detail: 'Lagos Office • Verified Device' },
-              { time: '9:02 AM', action: 'JWT Token Issued', icon: <Shield size={12} />, detail: 'Role: Senior Developer • Scope: AI Research' },
-              { time: '9:14 AM', action: 'Opened ai_core_algorithm_v3.py', icon: <FileText size={12} />, detail: 'Read Access • AES-256 Decrypted In-Memory' },
-              { time: '9:38 AM', action: 'Opened training_pipeline_config.yaml', icon: <FileText size={12} />, detail: 'Read Access • Watermark Applied' },
-              { time: '9:42 AM', action: 'Edited & Saved config.yaml', icon: <FileText size={12} />, detail: 'Write Access • Version 14 Created' },
-              { time: '12:30 PM', action: 'Session Idle — Auto-Locked', icon: <Lock size={12} />, detail: 'Automatic Security Timeout' },
-            ].map((event, i) => (
-              <div key={i} className="flex gap-3 p-3 bg-white/5 rounded-lg border border-glass-border/50">
-                <div className="p-1.5 bg-safe-green/10 rounded text-safe-green mt-0.5">{event.icon}</div>
-                <div>
-                  <div className="text-xs font-bold">{event.action}</div>
-                  <div className="text-[10px] text-text-secondary mt-0.5">{event.detail}</div>
-                  <div className="text-[10px] text-text-secondary flex items-center gap-1 mt-1"><Clock size={8} /> {event.time}</div>
+      {/* Main SOC Flow */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
+        
+        {/* Left Column: Security Stats */}
+        <div className="lg:col-span-1 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="glass-panel p-5 space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-sentinel-teal flex items-center gap-2">
+              <Shield size={16} /> Security Posture
+            </h3>
+            <div className="space-y-4">
+              <StatItem label="Active Sessions" value="1" trend="STABLE" />
+              <StatItem label="IP Protection" value="ENFORCED" trend="ACTIVE" color="text-safe-green" />
+              <StatItem label="Encryption" value="AES-256" trend="GCM" />
+              <StatItem label="MFA Enforcement" value="STRICT" color="text-safe-green" />
+            </div>
+          </div>
+
+          <div className="glass-panel p-5 space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-alert-red flex items-center gap-2">
+              <AlertCircle size={16} /> Critical Incidents
+            </h3>
+            <div className="space-y-3">
+              {highRiskLogs.length > 0 ? highRiskLogs.slice(0, 3).map(log => (
+                <div key={log.id} className="p-3 bg-alert-red/10 border border-alert-red/30 rounded-lg">
+                  <div className="text-xs font-bold text-alert-red">{log.event_type}</div>
+                  <div className="text-[10px] text-text-secondary mt-1 truncate">{log.user_email}</div>
+                  <div className="text-[10px] text-text-secondary mt-1">{log.created_at ? new Date(log.created_at.replace(' ', 'T')).toLocaleTimeString() : '--:--:--'}</div>
                 </div>
-              </div>
-            ))}
+              )) : (
+                <div className="text-center py-4 text-xs text-text-secondary bg-white/5 rounded-lg border border-glass-border">
+                  No critical incidents detected
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Threat Day: Kwame's Activity */}
-        <div className="glass-panel p-5 flex flex-col border border-alert-red/30">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-alert-red mb-4 flex items-center gap-2">
-            <AlertTriangle size={14} /> Threat Day — Kwame Mensah
-          </h3>
-          <div className="space-y-3 flex-1 overflow-y-auto">
-            {[
-              { time: '11:00 PM', action: 'Login from Unknown VPN', icon: <User size={12} />, detail: 'Accra, GH • Unrecognized Device • ⚠️ Flagged', danger: true },
-              { time: '11:01 PM', action: 'Navigated to AI Algorithm Folder', icon: <FileText size={12} />, detail: 'Anomaly: Account flagged "recently resigned"', danger: true },
-              { time: '11:02 PM', action: 'Bulk Download Initiated (47 files)', icon: <Zap size={12} />, detail: '🚨 ANOMALY: Mass exfiltration pattern detected', danger: true },
-              { time: '11:02 PM', action: '⛔ SESSION REVOKED BY SYSTEM', icon: <Lock size={12} />, detail: 'Real-Time Monitor auto-terminated JWT token', system: true },
-              { time: '11:02 PM', action: '🔒 FILES LOCKED', icon: <Lock size={12} />, detail: '12 files in AI Algorithm/ locked from download', system: true },
-              { time: '11:02 PM', action: '🚨 EMERGENCY ALERT SENT', icon: <AlertTriangle size={12} />, detail: 'IT Security Team notified via Dashboard + SMS', system: true },
-              { time: '11:03 PM', action: '📋 FORENSIC AUDIT GENERATED', icon: <FileText size={12} />, detail: 'Incident #TF-2024-0087 — Evidence for Legal Team', system: true },
-            ].map((event, i) => (
-              <div key={i} className={`flex gap-3 p-3 rounded-lg border ${event.system ? 'bg-yellow-500/10 border-yellow-500/30' : event.danger ? 'bg-alert-red/10 border-alert-red/30' : 'bg-white/5 border-glass-border/50'}`}>
-                <div className={`p-1.5 rounded mt-0.5 ${event.system ? 'bg-yellow-500/20 text-yellow-500' : 'bg-alert-red/10 text-alert-red'}`}>{event.icon}</div>
-                <div>
-                  <div className={`text-xs font-bold ${event.system ? 'text-yellow-400' : ''}`}>{event.action}</div>
-                  <div className="text-[10px] text-text-secondary mt-0.5">{event.detail}</div>
-                  <div className="text-[10px] text-text-secondary flex items-center gap-1 mt-1"><Clock size={8} /> {event.time}</div>
-                </div>
-              </div>
-            ))}
+        {/* Center/Right: Detailed Live Feed */}
+        <div className="lg:col-span-3 glass-panel flex flex-col min-h-0 border-sentinel-teal/20">
+          <div className="p-4 border-b border-glass-border flex items-center justify-between bg-white/5">
+            <div className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+              <Zap size={14} className="text-sentinel-teal" /> Global Access Stream
+            </div>
+            <div className="flex items-center gap-4 text-[10px] text-text-secondary">
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-sentinel-teal"></div> UPLOAD/DOWNLOAD</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-alert-red"></div> SECURITY ALERT</div>
+            </div>
           </div>
-        </div>
 
-        {/* Real-time Incident Feed */}
-        <div className="glass-panel p-5 flex flex-col border border-sentinel-teal/30">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-sentinel-teal mb-4 flex items-center gap-2">
-            <Zap size={14} className="animate-pulse" /> Real-Time Security Feed
-          </h3>
-          <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+            <div className="grid grid-cols-12 px-4 py-2 text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+              <div className="col-span-2">Timestamp</div>
+              <div className="col-span-2">User</div>
+              <div className="col-span-3">Action</div>
+              <div className="col-span-4">Asset / Details</div>
+              <div className="col-span-1 text-right">Risk</div>
+            </div>
+            
             {realLogs.length > 0 ? realLogs.map((log) => (
-              <div key={log.id} className={`flex gap-3 p-3 rounded-lg border transition-all hover:bg-white/5 ${log.risk_score > 50 ? 'bg-alert-red/10 border-alert-red/30' : 'bg-white/5 border-glass-border/50'}`}>
-                <div className={`p-1.5 rounded mt-0.5 ${log.risk_score > 50 ? 'bg-alert-red/20 text-alert-red' : 'bg-sentinel-teal/20 text-sentinel-teal'}`}>
-                  {log.event_type.includes('DOWNLOAD') ? <Zap size={12} /> : log.event_type.includes('UPLOAD') ? <FileText size={12} /> : <User size={12} />}
+              <div 
+                key={log.id} 
+                className={`grid grid-cols-12 items-center px-4 py-3 rounded-lg border transition-all hover:scale-[1.01] hover:bg-white/5 ${
+                  log.risk_score > 50 ? 'bg-alert-red/10 border-alert-red/30' : 'bg-white/5 border-glass-border/50'
+                }`}
+              >
+                <div className="col-span-2 text-xs font-mono opacity-70">
+                  {log.created_at ? new Date(log.created_at.replace(' ', 'T')).toLocaleTimeString() : '--:--:--'}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-xs font-bold truncate">{log.event_type.replace(/_/g, ' ')}</div>
-                    <div className={`text-[10px] font-bold ${log.risk_score > 50 ? 'text-alert-red' : 'text-sentinel-teal'}`}>{log.risk_score}</div>
-                  </div>
-                  <div className="text-[10px] text-text-secondary mt-0.5 truncate">{log.user_email || 'SYSTEM'}</div>
-                  <div className="text-[10px] text-text-secondary mt-0.5 italic truncate">{log.file_name || log.details || 'No details'}</div>
-                  <div className="text-[10px] text-text-secondary flex items-center gap-1 mt-1 opacity-70">
-                    <Clock size={8} /> 
-                    {log.created_at ? new Date(log.created_at.replace(' ', 'T')).toLocaleTimeString() : 'Just now'}
-                  </div>
+                <div className="col-span-2 text-xs truncate pr-4 font-medium" title={log.user_email}>
+                  {log.user_email.split('@')[0]}
+                </div>
+                <div className="col-span-3 flex items-center gap-2">
+                  <span className={`p-1 rounded ${
+                    log.event_type.includes('DOWNLOAD') ? 'bg-sentinel-teal/20 text-sentinel-teal' : 
+                    log.event_type.includes('UPLOAD') ? 'bg-safe-green/20 text-safe-green' : 
+                    log.risk_score > 50 ? 'bg-alert-red/20 text-alert-red' : 'bg-white/10 text-white'
+                  }`}>
+                    {log.event_type.includes('DOWNLOAD') ? <Zap size={12} /> : 
+                     log.event_type.includes('UPLOAD') ? <FileText size={12} /> : <User size={12} />}
+                  </span>
+                  <span className="text-xs font-bold whitespace-nowrap">{log.event_type.replace(/_/g, ' ')}</span>
+                </div>
+                <div className="col-span-4 text-xs truncate text-text-secondary italic pr-4">
+                  {log.file_name || log.details || 'System event'}
+                </div>
+                <div className={`col-span-1 text-right text-xs font-bold ${
+                  log.risk_score > 70 ? 'text-alert-red' : 
+                  log.risk_score > 40 ? 'text-yellow-500' : 'text-safe-green'
+                }`}>
+                  {log.risk_score}
                 </div>
               </div>
             )) : (
-              <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
-                <Activity size={32} className="mb-2" />
-                <p className="text-xs">Waiting for live events...</p>
+              <div className="h-full flex flex-col items-center justify-center text-center opacity-50 py-20">
+                <Activity size={48} className="mb-4 text-sentinel-teal animate-pulse" />
+                <h3 className="text-lg font-bold">No Security Events</h3>
+                <p className="text-sm">Perform actions in the vault to see live audits.</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Real-time Ticker */}
-      <div className="h-12 glass-panel flex items-center px-6 gap-6 relative overflow-hidden select-none">
-        <div className="text-[10px] uppercase tracking-widest text-sentinel-teal font-black whitespace-nowrap">LIVE FEED</div>
-        <div className="w-px h-4 bg-glass-border"></div>
-        <div className="flex-1 whitespace-nowrap text-xs font-mono text-text-secondary flex gap-12 animate-marquee">
-          <span>09:14 — Amara Okafor accessed ai_core_algorithm_v3.py [NORMAL]</span>
-          <span className="text-alert-red">23:02 — 🚨 KWAME MENSAH BULK DOWNLOAD BLOCKED — SESSION REVOKED</span>
-          <span>23:18 — IT Security acknowledged Incident #TF-2024-0087</span>
-          <span>09:14 — Amara Okafor accessed ai_core_algorithm_v3.py [NORMAL]</span>
-          <span className="text-alert-red">23:02 — 🚨 KWAME MENSAH BULK DOWNLOAD BLOCKED — SESSION REVOKED</span>
-          <span>23:18 — IT Security acknowledged Incident #TF-2024-0087</span>
-        </div>
-      </div>
-
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }
@@ -140,15 +148,22 @@ const MonitoringWall = ({ auditLogs = [] }) => {
           background: rgba(255, 255, 255, 0.05);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(0, 168, 150, 0.2);
+          background: rgba(0, 168, 150, 0.3);
           border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(0, 168, 150, 0.4);
         }
       `}</style>
     </div>
   );
 };
+
+const StatItem = ({ label, value, trend, color = "text-white" }) => (
+  <div className="flex flex-col">
+    <div className="flex justify-between items-end mb-1">
+      <span className="text-[10px] text-text-secondary uppercase font-bold">{label}</span>
+      {trend && <span className="text-[9px] font-black text-sentinel-teal/60">{trend}</span>}
+    </div>
+    <div className={`text-sm font-bold ${color}`}>{value}</div>
+  </div>
+);
 
 export default MonitoringWall;

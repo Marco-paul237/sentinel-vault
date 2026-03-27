@@ -23,6 +23,18 @@ const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || crypto.scryptSync('sentinel
 // Ensure uploads directory exists
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+// ==================== CONFIGURATION ====================
+/**
+ * 🔑 ADMIN CONFIGURATION
+ * Add the email addresses of the authorized administrators here.
+ * Only these users will be able to upload, delete, or manage policies.
+ */
+const AUTHORIZED_ADMINS = [
+  'admin@techforge.com',
+  'pollosama237@gmail.com' // Added your email as admin
+];
+
+
 // ==================== DATABASE SETUP ====================
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
@@ -55,13 +67,27 @@ db.exec(`
     mime_type TEXT,
     uploaded_by TEXT,
     folder_id TEXT,
+    tags TEXT DEFAULT '[]', -- JSON string of custom fields/tags
     iv TEXT,
     auth_tag TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (uploaded_by) REFERENCES users(id),
     FOREIGN KEY (folder_id) REFERENCES folders(id)
   );
+`);
 
+// --- MIGRATIONS (Ad-hoc) ---
+try { db.prepare("ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'").run(); } catch(e) {}
+try { db.prepare("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'junior'").run(); } catch(e) {}
+try { db.prepare("ALTER TABLE files ADD COLUMN folder_id TEXT").run(); } catch(e) {}
+
+// Force 'admin' role for AUTHORIZED_ADMINS
+AUTHORIZED_ADMINS.forEach(email => {
+  db.prepare("UPDATE users SET role = 'admin' WHERE email = ?").run(email);
+});
+// ---------------------------
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS audit_logs (
     id TEXT PRIMARY KEY,
     event_type TEXT NOT NULL,
@@ -128,17 +154,33 @@ const emailTransporter = nodemailer.createTransport({
   }
 });
 
-// JWT Auth Middleware
+// Authentication Middleware
 const authenticate = (req: any, res: any, next: any) => {
   const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Authentication required' });
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+
+  jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+    if (err) return res.status(401).json({ error: 'Unauthorized' });
     req.user = decoded;
     next();
-  } catch {
-    res.status(403).json({ error: 'Invalid or expired token' });
+  });
+};
+
+// Role-Based Access Control Middleware
+const authorize = (roles: string[]) => (req: any, res: any, next: any) => {
+  if (!req.user) return res.status(401).json({ error: 'Auth required' });
+  
+  // Strict check if 'admin' role is required but user is not in AUTHORIZED_ADMINS
+  if (roles.includes('admin') && !AUTHORIZED_ADMINS.includes(req.user.email)) {
+    return res.status(403).json({ error: 'Access Denied: Administrator privileges required' });
   }
+
+  // General role check (e.g., 'engineer', 'junior')
+  if (!roles.includes(req.user.role) && !AUTHORIZED_ADMINS.includes(req.user.email)) {
+    return res.status(403).json({ error: `Access Denied: ${roles.join(' or ')} role required` });
+  }
+  
+  next();
 };
 
 // Audit helper
@@ -186,13 +228,17 @@ app.post('/api/auth/register', async (req, res) => {
 
     const id = uuidv4();
     const passwordHash = bcrypt.hashSync(password, 10);
-    db.prepare('INSERT INTO users (id, email, password_hash, role) VALUES (?, ?, ?, ?)').run(id, email, passwordHash, role || 'user');
+    
+    // Auto-assign 'admin' role if in AUTHORIZED_ADMINS
+    const assignedRole = AUTHORIZED_ADMINS.includes(email) ? 'admin' : (role || 'junior');
+    
+    db.prepare('INSERT INTO users (id, email, password_hash, role) VALUES (?, ?, ?, ?)').run(id, email, passwordHash, assignedRole);
 
-    const token = jwt.sign({ id, email, role: role || 'user' }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id, email, role: assignedRole }, JWT_SECRET, { expiresIn: '24h' });
 
-    await logAudit('USER_REGISTERED', id, email, null, null, req.ip || 'unknown', `New user registered: ${email}`, 5);
+    await logAudit('USER_REGISTERED', id, email, null, null, req.ip || 'unknown', `New user registered: ${email} (${assignedRole})`, 5);
 
-    res.status(201).json({ token, user: { id, email, role: role || 'user' } });
+    res.status(201).json({ token, user: { id, email, role: assignedRole } });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -224,7 +270,8 @@ app.post('/api/auth/verify', authenticate, (req: any, res) => {
 });
 
 // ==================== FILE ROUTES ====================
-app.post('/api/files/upload', authenticate, upload.single('file'), async (req: any, res) => {
+// ONLY ADMINS CAN UPLOAD
+app.post('/api/files/upload', authenticate, authorize(['admin']), upload.single('file'), async (req: any, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   try {
@@ -237,9 +284,10 @@ app.post('/api/files/upload', authenticate, upload.single('file'), async (req: a
     fs.writeFileSync(path.join(UPLOAD_DIR, storedName), encrypted);
 
     const classification = req.body.classification || 'Internal';
+    const tags = req.body.tags || '[]'; // Custom fields
 
-    db.prepare('INSERT INTO files (id, original_name, stored_name, classification, size, mime_type, uploaded_by, folder_id, iv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
-      id, req.file.originalname, storedName, classification, req.file.size, req.file.mimetype, req.user.id, req.body.folder_id || null, iv.toString('hex')
+    db.prepare('INSERT INTO files (id, original_name, stored_name, classification, size, mime_type, uploaded_by, folder_id, tags, iv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
+      id, req.file.originalname, storedName, classification, req.file.size, req.file.mimetype, req.user.id, req.body.folder_id || null, tags, iv.toString('hex')
     );
 
     await logAudit('FILE_UPLOADED', req.user.id, req.user.email, id, req.file.originalname, req.ip || 'unknown', `File uploaded: ${req.file.originalname} (${classification})`, 10);
@@ -284,18 +332,41 @@ app.get('/api/files/download/:id', authenticate, async (req: any, res) => {
   }
 });
 
-app.delete('/api/files/:id', authenticate, async (req: any, res) => {
+// ONLY ADMINS CAN DELETE
+app.delete('/api/files/:id', authenticate, authorize(['admin']), async (req: any, res) => {
+    try {
+      const file: any = db.prepare('SELECT * FROM files WHERE id = ?').get(req.params.id);
+      if (!file) return res.status(404).json({ error: 'File not found' });
+  
+      const filePath = path.join(UPLOAD_DIR, file.stored_name);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      db.prepare('DELETE FROM files WHERE id = ?').run(req.params.id);
+  
+      await logAudit('FILE_DELETED', req.user.id, req.user.email, file.id, file.original_name, req.ip || 'unknown', `File deleted: ${file.original_name}`, 30);
+  
+      res.json({ message: 'File deleted' });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+// UPDATE FILE METADATA (Admins & Engineers)
+app.patch('/api/files/:id', authenticate, authorize(['admin', 'engineer']), async (req: any, res) => {
   try {
+    const { tags, classification } = req.body;
     const file: any = db.prepare('SELECT * FROM files WHERE id = ?').get(req.params.id);
     if (!file) return res.status(404).json({ error: 'File not found' });
 
-    const filePath = path.join(UPLOAD_DIR, file.stored_name);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    db.prepare('DELETE FROM files WHERE id = ?').run(req.params.id);
+    if (tags !== undefined) {
+      db.prepare('UPDATE files SET tags = ? WHERE id = ?').run(tags, req.params.id);
+    }
+    if (classification !== undefined) {
+      db.prepare('UPDATE files SET classification = ? WHERE id = ?').run(classification, req.params.id);
+    }
 
-    await logAudit('FILE_DELETED', req.user.id, req.user.email, file.id, file.original_name, req.ip || 'unknown', `File deleted: ${file.original_name}`, 30);
+    await logAudit('FILE_UPDATED', req.user.id, req.user.email, file.id, file.original_name, req.ip || 'unknown', `File metadata updated: ${file.original_name}`, 10);
 
-    res.json({ message: 'File deleted' });
+    res.json({ message: 'File updated successfully' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -350,12 +421,13 @@ app.delete('/api/folders/:id', authenticate, async (req: any, res) => {
 });
 
 // ==================== POLICY ROUTES ====================
-app.get('/api/policies', authenticate, (req: any, res) => {
+// ONLY ADMINS CAN MANAGE POLICIES
+app.get('/api/policies', authenticate, authorize(['admin']), (req: any, res) => {
   const policies = db.prepare('SELECT * FROM policies ORDER BY created_at DESC').all();
   res.json(policies);
 });
 
-app.post('/api/policies', authenticate, async (req: any, res) => {
+app.post('/api/policies', authenticate, authorize(['admin']), async (req: any, res) => {
   try {
     const { name, description, condition_field, condition_operator, condition_value, action, severity } = req.body;
     if (!name) return res.status(400).json({ error: 'Policy name required' });
