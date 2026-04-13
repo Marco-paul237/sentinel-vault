@@ -7,7 +7,7 @@ const FileAccessDetail = ({ file, onBack, token, onAction }) => {
   const [localLogs, setLocalLogs] = useState([]);
   const [downloading, setDownloading] = useState(false);
 
-  const API = 'http://localhost:4000/api';
+  const API = '/api';
 
   useEffect(() => {
     fetchFileLogs();

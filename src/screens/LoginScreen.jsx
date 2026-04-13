@@ -9,7 +9,7 @@ const LoginScreen = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API = 'http://localhost:4000/api';
+  const API = '/api';
 
   const handleSubmit = async (e) => {
     e.preventDefault();

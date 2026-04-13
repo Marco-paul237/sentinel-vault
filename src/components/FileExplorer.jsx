@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Folder, FolderOpen, FolderPlus, File, Shield, Eye, Download, Lock, Upload, X, CheckCircle, Trash2, ChevronRight, Plus, Tag as TagIcon, Edit2 } from 'lucide-react';
 
-const API = 'http://localhost:4000/api';
+const API = '/api';
 
 const FileExplorer = ({ onFileSelect, token, onUpload, user }) => {
   const [files, setFiles] = useState([]);

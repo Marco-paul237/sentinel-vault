@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Plus, Trash2, ToggleLeft, ToggleRight, AlertTriangle, CheckCircle } from 'lucide-react';
 
-const API = 'http://localhost:4000/api';
+const API = '/api';
 
 const PolicyManagement = ({ token }) => {
   const [policies, setPolicies] = useState([]);

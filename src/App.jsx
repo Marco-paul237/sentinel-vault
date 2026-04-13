@@ -8,7 +8,7 @@ import MonitoringWall from './screens/MonitoringWall'
 import PolicyManagement from './screens/PolicyManagement'
 import LoginScreen from './screens/LoginScreen'
 
-const API = 'http://localhost:4000/api';
+const API = '/api';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
