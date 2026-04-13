@@ -1,0 +1,65 @@
+
+> sentinel-vault@0.0.0 lint
+> eslint . --ext js,jsx --report-unused-disable-directives
+
+
+/Users/ndepemarco/Desktop/Design project 2/src/App.jsx
+   1:8  warning  'React' is defined but never used                                                                                  no-unused-vars
+  36:6  warning  React Hook useEffect has a missing dependency: 'fetchAuditLogs'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/ActivityCard.jsx
+   1:8   warning  'React' is defined but never used                                no-unused-vars
+  21:72  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  21:83  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/FileExplorer.jsx
+   1:8    warning  'React' is defined but never used                                                                                                   no-unused-vars
+   2:48   warning  'Shield' is defined but never used                                                                                                  no-unused-vars
+   2:56   warning  'Eye' is defined but never used                                                                                                     no-unused-vars
+   2:88   warning  'CheckCircle' is defined but never used                                                                                             no-unused-vars
+   2:145  warning  'Edit2' is defined but never used                                                                                                   no-unused-vars
+  15:27   warning  'setNewFolderParent' is assigned a value but never used                                                                             no-unused-vars
+  23:9    warning  'isEngineer' is assigned a value but never used                                                                                     no-unused-vars
+  28:6    warning  React Hook useEffect has missing dependencies: 'fetchFiles' and 'fetchFolders'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  32:6    warning  React Hook useEffect has a missing dependency: 'fetchFiles'. Either include it or remove the dependency array                       react-hooks/exhaustive-deps
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/Layout.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/Logo.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/RiskBadge.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/ExecutiveDashboard.jsx
+   2:47  warning  'Lock' is defined but never used                                 no-unused-vars
+   2:68  warning  'Server' is defined but never used                               no-unused-vars
+   2:76  warning  'Database' is defined but never used                             no-unused-vars
+   2:86  warning  'Cloud' is defined but never used                                no-unused-vars
+  86:35  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/FileAccessDetail.jsx
+   1:8   warning  'React' is defined but never used                                                                                 no-unused-vars
+   2:29  warning  'Clock' is defined but never used                                                                                 no-unused-vars
+   2:57  warning  'MapPin' is defined but never used                                                                                no-unused-vars
+   2:65  warning  'Calendar' is defined but never used                                                                              no-unused-vars
+   2:75  warning  'Info' is defined but never used                                                                                  no-unused-vars
+  14:6   warning  React Hook useEffect has a missing dependency: 'fetchFileLogs'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/LoginScreen.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/MonitoringWall.jsx
+  1:8   warning  'React' is defined but never used  no-unused-vars
+  2:40  warning  'Clock' is defined but never used  no-unused-vars
+  2:62  warning  'Globe' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/PolicyManagement.jsx
+   1:8   warning  'React' is defined but never used                                                                                 no-unused-vars
+   2:32  warning  'ToggleLeft' is defined but never used                                                                            no-unused-vars
+   2:44  warning  'ToggleRight' is defined but never used                                                                           no-unused-vars
+  13:6   warning  React Hook useEffect has a missing dependency: 'fetchPolicies'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 36 problems (3 errors, 33 warnings)
+

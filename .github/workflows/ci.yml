@@ -1,0 +1,63 @@
+name: SENTINEL Vault CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies (Root)
+        run: npm ci
+      - name: Install dependencies (Backend)
+        run: npm ci --prefix backend/server
+      - name: Run ESLint
+        run: npm run lint:all
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies (Backend)
+        run: npm ci --prefix backend/server
+      - name: Type-check Backend
+        run: npm run type-check:all
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies (Root)
+        run: npm ci
+      - name: Install dependencies (Backend)
+        run: npm ci --prefix backend/server
+      - name: Build Frontend
+        run: npm run build
+      - name: Build Backend
+        run: npm run build --prefix backend/server
+
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Security Audit
+        run: npm audit --audit-level=high

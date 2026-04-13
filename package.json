@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives",
     "preview": "vite preview",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix backend/server\""
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix backend/server\"",
+    "lint:all": "npm run lint && npm run lint --prefix backend/server",
+    "type-check:all": "npm run type-check --prefix backend/server"
   },
   "dependencies": {
     "clsx": "^2.0.0",

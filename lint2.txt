@@ -1,0 +1,191 @@
+
+> sentinel-vault@0.0.0 lint:all
+> npm run lint && npm run lint --prefix backend/server
+
+
+> sentinel-vault@0.0.0 lint
+> eslint . --ext js,jsx --report-unused-disable-directives
+
+
+/Users/ndepemarco/Desktop/Design project 2/dist/assets/index-65b68cab.js
+   9:1588   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+   9:4646   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  17:376    error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  25:921    error    'setImmediate' is not defined                                              no-undef
+  33:596    error    Unexpected combined character in character class                           no-misleading-character-class
+  33:3023   error    Unnecessary escape character: \-                                           no-useless-escape
+  33:4912   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:202    error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  37:1216   error    Empty block statement                                                      no-empty
+  37:2389   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:3868   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:3909   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:4076   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:4103   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:4694   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:6030   error    'MSApp' is not defined                                                     no-undef
+  37:6078   error    'MSApp' is not defined                                                     no-undef
+  37:7458   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:7551   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:8633   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  37:9654   error    Expected to return a value in method 'get'                                 getter-return
+  37:9787   warning  'r' is defined but never used                                              no-unused-vars
+  37:9789   warning  'l' is defined but never used                                              no-unused-vars
+  37:9791   warning  'i' is defined but never used                                              no-unused-vars
+  37:9793   warning  's' is defined but never used                                              no-unused-vars
+  37:9795   warning  'a' is defined but never used                                              no-unused-vars
+  37:9797   warning  'u' is defined but never used                                              no-unused-vars
+  37:9970   warning  'e' is defined but never used                                              no-unused-vars
+  37:9972   warning  't' is defined but never used                                              no-unused-vars
+  37:9974   warning  'n' is defined but never used                                              no-unused-vars
+  37:9976   warning  'r' is defined but never used                                              no-unused-vars
+  37:9978   warning  'l' is defined but never used                                              no-unused-vars
+  37:9980   warning  'i' is defined but never used                                              no-unused-vars
+  37:9982   warning  's' is defined but never used                                              no-unused-vars
+  37:9984   warning  'a' is defined but never used                                              no-unused-vars
+  37:9986   warning  'u' is defined but never used                                              no-unused-vars
+  37:10038  warning  'e' is defined but never used                                              no-unused-vars
+  37:10040  warning  't' is defined but never used                                              no-unused-vars
+  37:10042  warning  'n' is defined but never used                                              no-unused-vars
+  37:10044  warning  'r' is defined but never used                                              no-unused-vars
+  37:10046  warning  'l' is defined but never used                                              no-unused-vars
+  37:10048  warning  'i' is defined but never used                                              no-unused-vars
+  37:10050  warning  's' is defined but never used                                              no-unused-vars
+  37:10052  warning  'a' is defined but never used                                              no-unused-vars
+  37:10054  warning  'u' is defined but never used                                              no-unused-vars
+  37:11886  error    Empty block statement                                                      no-empty
+  37:19766  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:20108  error    Invalid typeof comparison value                                            valid-typeof
+  37:20282  error    Invalid typeof comparison value                                            valid-typeof
+  37:22147  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  37:27707  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  37:29173  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  37:33273  error    Expected a 'break' statement before 'case'                                 no-fallthrough
+  37:33460  error    Expected a 'break' statement before 'case'                                 no-fallthrough
+  37:34577  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  37:36022  error    Expected a 'break' statement before 'case'                                 no-fallthrough
+  37:37452  error    Unexpected control character(s) in regular expression: \x00                no-control-regex
+  38:1506   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  38:1606   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  38:14646  error    Expected a 'break' statement before 'case'                                 no-fallthrough
+  38:15102  error    Unexpected constant condition                                              no-constant-condition
+  38:15692  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  38:22217  error    Empty block statement                                                      no-empty
+  38:22226  error    Empty block statement                                                      no-empty
+  38:25591  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  38:26454  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  40:3962   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  40:5084   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  40:12846  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:12867  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:12937  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:13119  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:13221  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:13301  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:13325  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:13377  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:13732  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:15914  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:16193  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:16639  error    Unnecessary escape character: \/                                           no-useless-escape
+  40:17509  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:17818  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:25812  error    Empty block statement                                                      no-empty
+  40:25847  error    Expected a 'break' statement before 'case'                                 no-fallthrough
+  40:29915  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  40:30892  warning  't' is defined but never used                                              no-unused-vars
+  40:30894  warning  'n' is defined but never used                                              no-unused-vars
+  40:30921  warning  't' is defined but never used                                              no-unused-vars
+  40:30923  warning  'n' is defined but never used                                              no-unused-vars
+  40:34600  error    Unexpected constant condition                                              no-constant-condition
+  40:39080  error    Unexpected constant condition                                              no-constant-condition
+  40:39365  error    Unexpected constant condition                                              no-constant-condition
+  40:42337  error    Empty block statement                                                      no-empty
+  40:43430  error    Component definition is missing display name                               react/display-name
+  40:52749  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  40:54148  error    'Ju' is a function                                                         no-func-assign
+  40:54154  error    'ec' is a function                                                         no-func-assign
+  40:55072  error    '__REACT_DEVTOOLS_GLOBAL_HOOK__' is not defined                            no-undef
+  40:55171  error    Empty block statement                                                      no-empty
+  40:57204  error    '__REACT_DEVTOOLS_GLOBAL_HOOK__' is not defined                            no-undef
+  40:57261  error    '__REACT_DEVTOOLS_GLOBAL_HOOK__' is not defined                            no-undef
+  43:656    error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  43:1018   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:1325   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  43:1474   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  43:2156   error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  43:4806   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:5106   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:5661   error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:7242   warning  't' is assigned a value but never used                                     no-unused-vars
+  43:17816  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:18077  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:18117  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:18181  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:18220  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:18283  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:18327  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:18376  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  43:22995  error    'WebKitCSSMatrix' is not defined                                           no-undef
+  43:28607  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:32811  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:35163  error    Expected a conditional expression and instead saw an assignment            no-cond-assign
+  43:45769  warning  '_' is assigned a value but never used                                     no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/App.jsx
+   1:8  warning  'React' is defined but never used                                                                                  no-unused-vars
+  36:6  warning  React Hook useEffect has a missing dependency: 'fetchAuditLogs'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/ActivityCard.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/FileExplorer.jsx
+   1:8    warning  'React' is defined but never used                                                                                                   no-unused-vars
+   2:48   warning  'Shield' is defined but never used                                                                                                  no-unused-vars
+   2:56   warning  'Eye' is defined but never used                                                                                                     no-unused-vars
+   2:88   warning  'CheckCircle' is defined but never used                                                                                             no-unused-vars
+   2:145  warning  'Edit2' is defined but never used                                                                                                   no-unused-vars
+  15:27   warning  'setNewFolderParent' is assigned a value but never used                                                                             no-unused-vars
+  23:9    warning  'isEngineer' is assigned a value but never used                                                                                     no-unused-vars
+  28:6    warning  React Hook useEffect has missing dependencies: 'fetchFiles' and 'fetchFolders'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  32:6    warning  React Hook useEffect has a missing dependency: 'fetchFiles'. Either include it or remove the dependency array                       react-hooks/exhaustive-deps
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/Layout.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/Logo.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/components/RiskBadge.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/ExecutiveDashboard.jsx
+  2:47  warning  'Lock' is defined but never used      no-unused-vars
+  2:68  warning  'Server' is defined but never used    no-unused-vars
+  2:76  warning  'Database' is defined but never used  no-unused-vars
+  2:86  warning  'Cloud' is defined but never used     no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/FileAccessDetail.jsx
+   1:8   warning  'React' is defined but never used                                                                                 no-unused-vars
+   2:29  warning  'Clock' is defined but never used                                                                                 no-unused-vars
+   2:57  warning  'MapPin' is defined but never used                                                                                no-unused-vars
+   2:65  warning  'Calendar' is defined but never used                                                                              no-unused-vars
+   2:75  warning  'Info' is defined but never used                                                                                  no-unused-vars
+  14:6   warning  React Hook useEffect has a missing dependency: 'fetchFileLogs'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/LoginScreen.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/MonitoringWall.jsx
+  1:8   warning  'React' is defined but never used  no-unused-vars
+  2:40  warning  'Clock' is defined but never used  no-unused-vars
+  2:62  warning  'Globe' is defined but never used  no-unused-vars
+
+/Users/ndepemarco/Desktop/Design project 2/src/screens/PolicyManagement.jsx
+   1:8   warning  'React' is defined but never used                                                                                 no-unused-vars
+   2:32  warning  'ToggleLeft' is defined but never used                                                                            no-unused-vars
+   2:44  warning  'ToggleRight' is defined but never used                                                                           no-unused-vars
+  13:6   warning  React Hook useEffect has a missing dependency: 'fetchPolicies'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 156 problems (93 errors, 63 warnings)
+

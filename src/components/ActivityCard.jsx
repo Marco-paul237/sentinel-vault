@@ -18,7 +18,7 @@ const ActivityCard = ({ activity }) => {
             <div className="flex items-center gap-2">
               <span className="font-semibold text-sm">{user}</span>
               <span className="text-text-secondary text-xs">{action}</span>
-              <span className="font-medium text-sm text-sentinel-teal">"{fileName}"</span>
+              <span className="font-medium text-sm text-sentinel-teal">&quot;{fileName}&quot;</span>
             </div>
             <div className="flex items-center gap-4 mt-1">
               <div className="flex items-center gap-1 text-xs text-text-secondary">

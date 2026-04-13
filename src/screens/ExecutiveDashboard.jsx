@@ -83,7 +83,7 @@ const ExecutiveDashboard = ({ auditLogs = [] }) => {
             <div className="text-4xl font-black text-white mb-2">7</div>
             <div className="text-xs uppercase tracking-[0.2em] text-sentinel-teal font-bold">Aggregate System Risk Score</div>
             <p className="text-text-secondary text-sm mt-4 max-w-md">
-              Monitoring TechForge's AI algorithm vault across 4 global nodes. Status: <span className="text-safe-green font-bold text-[10px] tracking-widest uppercase ml-1">Secure</span>
+              Monitoring TechForge&apos;s AI algorithm vault across 4 global nodes. Status: <span className="text-safe-green font-bold text-[10px] tracking-widest uppercase ml-1">Secure</span>
             </p>
           </div>
         </div>
