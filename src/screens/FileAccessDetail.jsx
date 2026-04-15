@@ -6,12 +6,53 @@ const FileAccessDetail = ({ file, onBack, token, onAction }) => {
   const [activeTimelineTab, setActiveTimelineTab] = useState('all');
   const [localLogs, setLocalLogs] = useState([]);
   const [downloading, setDownloading] = useState(false);
+  const [tagInput, setTagInput] = useState('');
+  const [currentFile, setCurrentFile] = useState(file);
+
+  const userRole = JSON.parse(localStorage.getItem('sentinel_user') || '{}').role;
 
   const API = '/api';
 
   useEffect(() => {
     fetchFileLogs();
+    setCurrentFile(file);
   }, [file.id, token]);
+
+  const handleAddTag = async () => {
+    if (!tagInput.trim()) return;
+    const existingTags = JSON.parse(currentFile.tags || '[]');
+    if (existingTags.includes(tagInput.trim())) return;
+
+    const newTags = [...existingTags, tagInput.trim()];
+    await updateMetadata({ tags: JSON.stringify(newTags) });
+    setTagInput('');
+  };
+
+  const handleRemoveTag = async (tag) => {
+    const existingTags = JSON.parse(currentFile.tags || '[]');
+    const newTags = existingTags.filter(t => t !== tag);
+    await updateMetadata({ tags: JSON.stringify(newTags) });
+  };
+
+  const updateMetadata = async (data) => {
+    try {
+      const res = await fetch(`${API}/files/${currentFile.id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        // Update local state to reflect change immediately
+        setCurrentFile({ ...currentFile, ...data });
+        onAction?.(); // Trigger audit refresh
+      }
+    } catch (err) {
+      console.error('Failed to update metadata', err);
+    }
+  };
 
   const fetchFileLogs = async () => {
     try {
@@ -86,12 +127,12 @@ const FileAccessDetail = ({ file, onBack, token, onAction }) => {
         </button>
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            {file.original_name || file.name}
+            {currentFile.original_name || currentFile.name}
             <span className="text-xs px-2 py-0.5 rounded bg-midnight-blue border border-glass-border uppercase tracking-widest font-bold opacity-70">
-              {file.classification}
+              {currentFile.security_level || currentFile.classification || 'Internal'}
             </span>
           </h2>
-          <div className="text-sm text-text-secondary mt-1">UUID: {file.id}</div>
+          <div className="text-sm text-text-secondary mt-1">UUID: {currentFile.id}</div>
         </div>
       </div>
 
@@ -106,12 +147,41 @@ const FileAccessDetail = ({ file, onBack, token, onAction }) => {
             </div>
             <div className="flex items-center justify-between py-2 border-b border-glass-border">
               <span className="text-sm text-text-secondary">Risk Score</span>
-              <RiskBadge level={file.riskLevel} score={file.riskScore} />
+              <RiskBadge level={currentFile.riskLevel} score={currentFile.riskScore} />
             </div>
             <div className="flex items-center justify-between py-2 border-b border-glass-border">
               <span className="text-sm text-text-secondary">Last Audit</span>
-              <span className="text-sm font-medium">2 hours ago</span>
+              <span className="text-sm font-medium">Recently updated</span>
             </div>
+            
+            {/* Custom Fields / Tags */}
+            <div className="pt-4 space-y-3">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-text-secondary">Custom Metadata</h4>
+              <div className="flex flex-wrap gap-2">
+                {JSON.parse(currentFile.tags || '[]').map((tag, i) => (
+                  <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-sentinel-teal/10 border border-sentinel-teal/30 text-sentinel-teal flex items-center gap-1">
+                    {tag}
+                    {(userRole === 'admin' || userRole === 'engineer') && (
+                      <button onClick={() => handleRemoveTag(tag)} className="hover:text-white transition-colors">×</button>
+                    )}
+                  </span>
+                ))}
+              </div>
+              {(userRole === 'admin' || userRole === 'engineer') && (
+                <div className="flex gap-2">
+                  <input 
+                    type="text"
+                    placeholder="Add field..."
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                    className="flex-1 bg-white/5 border border-glass-border rounded px-2 py-1 text-xs text-white placeholder:text-text-secondary focus:border-sentinel-teal"
+                  />
+                  <button onClick={handleAddTag} className="px-2 py-1 bg-sentinel-teal text-white rounded text-[10px] font-bold">ADD</button>
+                </div>
+              )}
+            </div>
+
             <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold text-sentinel-teal">
                 <Shield size={12} />
@@ -128,11 +198,11 @@ const FileAccessDetail = ({ file, onBack, token, onAction }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-[10px] text-text-secondary font-bold uppercase">Size</div>
-                <div className="text-sm">{file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${(file.size / 1024).toFixed(1)} KB`}</div>
+                <div className="text-sm">{currentFile.size > 1024 * 1024 ? `${(currentFile.size / (1024 * 1024)).toFixed(1)} MB` : `${(currentFile.size / 1024).toFixed(1)} KB`}</div>
               </div>
               <div>
                 <div className="text-[10px] text-text-secondary font-bold uppercase">MIME Type</div>
-                <div className="text-sm">application/vnd.ms-powerpoint</div>
+                <div className="text-sm">{currentFile.mime_type || 'application/octet-stream'}</div>
               </div>
               <div className="col-span-2">
                 <div className="text-[10px] text-text-secondary font-bold uppercase">Encryption</div>
