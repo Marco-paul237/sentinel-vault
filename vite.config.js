@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true, // Needed for Ngrok
+    allowedHosts: 'all',
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:4000',
